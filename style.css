@@ -620,27 +620,3 @@ body.dark .bubble pre {
   background: #1e1e2e;
   color: #e5e7eb;
 }
-.auth-section {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.auth-section button {
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: linear-gradient(135deg, #6c63ff, #f472b6);
-  color: white;
-  font-size: 0.85rem;
-  transition: 0.2s;
-}
-
-.auth-section button:hover {
-  opacity: 0.85;
-}
-body.dark .bubble {
-  color: #d1d5db !important;
-}

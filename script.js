@@ -10,11 +10,7 @@
    • Auto-resize textarea
    • Suggestion chips
    • Sidebar + mobile nav
-═══════════════════════════════════════════ */
-const supabaseClient = supabase.createClient(
-  "https://qqwqfilxwirlpgzpykrx.supabase.co",
-  "sb_publishable_3I1qQQqZDLYyjv2nieoCqQ_EtfIVa7Q"
-);
+═══════════════════════════════════════════ *
 
 // ── 1. State ──────────────────────────────
 let chatSessions = JSON.parse(localStorage.getItem('miniAI_sessions') || '[]');
@@ -435,8 +431,3 @@ function initCanvas() {
 
 // ── 14. Boot ──────────────────────────────
 init();
-async function login(provider) {
-  await supabaseClient.auth.signInWithOAuth({
-    provider: provider
-  });
-}
