@@ -620,3 +620,7 @@ body.dark .bubble pre {
   background: #1e1e2e;
   color: #e5e7eb;
 }
+body.dark .message-row.ai .bubble {
+  background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+  color: #ffffff;
+}
