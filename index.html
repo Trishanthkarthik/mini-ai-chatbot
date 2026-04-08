@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini AI — Student Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts: Sora (display) + DM Sans (body) -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+</head>
+
+<body class="light">
+
+  <!-- Animated background canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="app-shell">
+
+<!-- ───── SIDEBAR ───── -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-header">
+    <div class="logo-mark">
+      <!-- your svg stays same -->
+    </div>
+    <span class="logo-text">Mini AI</span>
+  </div>
+
+  <!-- 🔐 LOGIN SECTION (ADDED HERE) -->
+  <div class="auth-section">
+    <button onclick="login('google')">🔐 Google</button>
+    <button onclick="login('github')">🐱 GitHub</button>
+    <button onclick="login('linkedin')">💼 LinkedIn</button>
+  </div>
+
+  <!-- New Chat -->
+  <button class="new-chat-btn" id="newChatBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+    New Chat
+  </button>
+
+      <!-- Chat History -->
+      <div class="history-section">
+        <p class="history-label">Recent</p>
+        <ul class="history-list" id="historyList">
+          <!-- populated by JS -->
+        </ul>
+      </div>
+
+      <!-- Dark mode + footer -->
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+          <span class="theme-icon sun">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </span>
+          <span class="theme-icon moon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </span>
+          <span class="toggle-label" id="themeLabel">Light Mode</span>
+        </button>
+        <p class="footer-note">Powered by OpenRouter · Free tier</p>
+      </div>
+    </aside>
+
+    <!-- ───── MAIN AREA ───── -->
+    <main class="main" id="main">
+
+      <!-- Top bar (mobile) -->
+      <header class="topbar">
+        <button class="icon-btn" id="sidebarOpen" aria-label="Open sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <span class="topbar-title">Mini AI</span>
+        <button class="icon-btn new-chat-mobile" id="newChatMobile" aria-label="New chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </header>
+
+      <!-- Chat messages -->
+      <section class="chat-window" id="chatWindow">
+
+        <!-- Welcome screen (shown when no messages) -->
+        <div class="welcome-screen" id="welcomeScreen">
+          <div class="welcome-orb"></div>
+          <h1 class="welcome-title">How can I help you today?</h1>
+          <p class="welcome-sub">Ask anything — concepts, homework, coding, essays, or just curiosity.</p>
+          <div class="suggestion-chips">
+            <button class="chip" data-prompt="Explain quantum entanglement in simple terms">⚛️ Explain quantum entanglement</button>
+            <button class="chip" data-prompt="Write a Python function to sort a list of dictionaries by a key">🐍 Python sort dictionaries</button>
+            <button class="chip" data-prompt="What are the key differences between mitosis and meiosis?">🧬 Mitosis vs Meiosis</button>
+            <button class="chip" data-prompt="Give me tips for writing a strong college essay">✍️ College essay tips</button>
+          </div>
+        </div>
+
+        <!-- Messages render here -->
+        <div class="messages" id="messages"></div>
+
+      </section>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div class="input-wrap">
+          <textarea
+            id="msgInput"
+            class="msg-input"
+            placeholder="Ask Mini AI anything…"
+            rows="1"
+            maxlength="4000"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" aria-label="Send">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+        <p class="input-hint">Mini AI can make mistakes. Verify important information.</p>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</body>
+</html>
