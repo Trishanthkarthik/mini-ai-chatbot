@@ -10,7 +10,7 @@
    • Auto-resize textarea
    • Suggestion chips
    • Sidebar + mobile nav
-═══════════════════════════════════════════ *
+═══════════════════════════════════════════ */
 
 // ── 1. State ──────────────────────────────
 let chatSessions = JSON.parse(localStorage.getItem('miniAI_sessions') || '[]');
@@ -32,7 +32,7 @@ const sidebarOpen     = document.getElementById('sidebarOpen');
 const sidebarClose    = document.getElementById('sidebarClose');
 const sidebar         = document.getElementById('sidebar');
 
-// ── 3. Init ───────────────────────────────
+// ── 3. Init ───────────────────────────────//
 function init() {
   // restore dark mode preference
   const savedTheme = localStorage.getItem('miniAI_theme') || 'light';
@@ -205,7 +205,7 @@ async function sendMessage() {
     const aiText = data.reply || 'Sorry, I could not generate a response.';
 
     removeTypingIndicator();
-    currentSession.messages.push({ role: 'assistant', content: aiText });
+    currentSession.messages.push({ role: 'ai', content: aiText });
     appendBubble('ai', aiText);
     saveCurrentSession();
 
