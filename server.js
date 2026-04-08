@@ -1,10 +1,5 @@
 /* ═══════════════════════════════════════════
-   Mini AI — Backend Server (Node.js + Express)
-   
-   FREE AI API: OpenRouter (free tier)
-   Sign up at: https://openrouter.ai
-   Get your free API key (no credit card needed)
-   Add it to the .env file as OPENROUTER_API_KEY
+   Mini AI — Backend Server (Render Ready)
 ═══════════════════════════════════════════ */
 
 const express  = require('express');
@@ -12,144 +7,91 @@ const cors     = require('cors');
 const path     = require('path');
 require('dotenv').config();
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 🔥 IMPORTANT for Render
+app.set('trust proxy', 1);
 
 // ── Middleware ────────────────────────────
 app.use(cors());
 app.use(express.json({ limit: '4mb' }));
 
-// Serve frontend files
+// Serve frontend
 app.use(express.static(path.join(__dirname)));
 
 // ── Config ────────────────────────────────
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-// Free models available on OpenRouter:
-// - "meta-llama/llama-3.1-8b-instruct:free"  (recommended, fast)
-// - "mistralai/mistral-7b-instruct:free"
-// - "google/gemma-2-9b-it:free"
-// - "microsoft/phi-3-mini-128k-instruct:free"
-const FREE_MODEL = 'meta-llama/llama-3-8b-instruct';
+// ✅ Stable model (no :free issues)
+const MODEL = 'meta-llama/llama-3-8b-instruct';
 
-const SYSTEM_PROMPT = `You are Mini AI, a friendly and knowledgeable student assistant. 
-Your goal is to help students learn, understand concepts, and complete their work.
+const SYSTEM_PROMPT = `You are Mini AI, a helpful student assistant.
+Explain clearly, give examples, and keep answers simple and useful.`;
 
-Guidelines:
-- Be clear, accurate, and educational in your explanations
-- Use examples to illustrate difficult concepts
-- Break down complex topics step by step
-- Be encouraging and supportive
-- Use markdown formatting for code, lists, and headers when helpful
-- Keep answers focused and concise unless detail is needed
-- If you don't know something, say so honestly`;
-
-// ── POST /chat ────────────────────────────
+// ── CHAT ROUTE ────────────────────────────
 app.post('/chat', async (req, res) => {
-  const { message, history = [] } = req.body;
-
-  // Validate input
-  if (!message || typeof message !== 'string') {
-    return res.status(400).json({ error: 'Message is required.' });
-  }
-  if (message.trim().length === 0) {
-    return res.status(400).json({ error: 'Message cannot be empty.' });
-  }
-  if (message.length > 4000) {
-    return res.status(400).json({ error: 'Message is too long (max 4000 chars).' });
-  }
-
-  // API key check
-  if (!OPENROUTER_API_KEY) {
-    return res.status(500).json({
-      error: 'OpenRouter API key not configured. Please add OPENROUTER_API_KEY to your .env file.'
-    });
-  }
-
-  // Build messages array (with conversation context)
-  const messages = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    // Include prior conversation history (skip the last message since we add it separately)
-    ...history
-      .filter(m => m.role === 'user' || m.role === 'assistant')
-      .slice(-8)  // last 8 exchanges for context
-      .map(m => ({ role: m.role, content: m.content })),
-    { role: 'user', content: message.trim() }
-  ];
-
   try {
-    // Call OpenRouter free API
+    const { message, history = [] } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message required' });
+    }
+
+    if (!OPENROUTER_API_KEY) {
+      return res.status(500).json({ error: 'API key missing' });
+    }
+
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...history.slice(-8),
+      { role: 'user', content: message }
+    ];
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'http://localhost:3000',  // Required by OpenRouter
-        'X-Title': 'Mini AI Student Assistant',   // Optional, shows in OpenRouter dashboard
+        // 🔥 FIX FOR RENDER
+        'HTTP-Referer': process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000',
+        'X-Title': 'Mini AI'
       },
       body: JSON.stringify({
-        model: FREE_MODEL,
+        model: MODEL,
         messages,
-        max_tokens: 1024,
         temperature: 0.7,
-        stream: false,
+        max_tokens: 1000
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const msg = errorData?.error?.message || `OpenRouter API error: ${response.status}`;
-      
-      // Friendly messages for common errors
-      if (response.status === 401) throw new Error('Invalid API key. Check your OPENROUTER_API_KEY in .env');
-      if (response.status === 429) throw new Error('Rate limit hit. Please wait a moment and try again.');
-      if (response.status === 402) throw new Error('API quota exceeded. Try a different free model.');
-      throw new Error(msg);
-    }
-
     const data = await response.json();
 
-    // Extract the AI reply
-    const reply = data?.choices?.[0]?.message?.content;
-    if (!reply) throw new Error('No response from AI. Please try again.');
+    if (!response.ok) {
+      throw new Error(data?.error?.message || 'API error');
+    }
 
-    console.log(`[${new Date().toLocaleTimeString()}] ✓ Response sent (${reply.length} chars)`);
-    res.json({ reply: reply.trim() });
+    const reply = data?.choices?.[0]?.message?.content || "No response";
+
+    res.json({ reply });
 
   } catch (err) {
-    console.error(`[ERROR] ${err.message}`);
-    res.status(500).json({ error: err.message || 'Something went wrong. Please try again.' });
+    console.error("ERROR:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// ── Health check ──────────────────────────
+// ── HEALTH CHECK ──────────────────────────
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    model: FREE_MODEL,
-    apiKeySet: !!OPENROUTER_API_KEY,
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ok' });
 });
 
-// ── Fallback: serve index.html for any route ──
+// ── FRONTEND FALLBACK ─────────────────────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ── Start Server ──────────────────────────
+// ── START SERVER ──────────────────────────
 app.listen(PORT, () => {
-  console.log('\n╔══════════════════════════════════════╗');
-  console.log('║     Mini AI Server Started 🚀         ║');
-  console.log('╚══════════════════════════════════════╝');
-  console.log(`  URL:   http://localhost:${PORT}`);
-  console.log(`  Model: ${FREE_MODEL}`);
-  console.log(`  API Key: ${OPENROUTER_API_KEY ? '✓ Set' : '✗ Not set — add to .env!'}`);
-  console.log('');
-  if (!OPENROUTER_API_KEY) {
-    console.log('  ⚠️  WARNING: No API key found!');
-    console.log('     1. Sign up at https://openrouter.ai (free)');
-    console.log('     2. Get your API key');
-    console.log('     3. Add it to .env: OPENROUTER_API_KEY=sk-or-...\n');
-  }
+  console.log(`🚀 Server running on port ${PORT}`);
 });
