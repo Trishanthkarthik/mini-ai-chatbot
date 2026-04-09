@@ -620,3 +620,49 @@ body.dark .bubble pre {
   background: #1e1e2e;
   color: #e5e7eb;
 }
+/* ============================= */
+/* 📱 MOBILE RESPONSIVE FIX */
+/* ============================= */
+
+@media (max-width: 768px) {
+
+  /* Sidebar hide */
+  .sidebar {
+    display: none;
+  }
+
+  /* Main chat area full width */
+  .main {
+    width: 100%;
+    padding: 10px;
+  }
+
+  /* Chat bubbles smaller */
+  .bubble {
+    max-width: 90%;
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  /* Input box fix */
+  .chat-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Input container fixed bottom */
+  .input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--bg-base);
+    padding: 10px;
+  }
+
+  /* Avoid overlap */
+  .chat-container {
+    padding-bottom: 80px;
+  }
+}
